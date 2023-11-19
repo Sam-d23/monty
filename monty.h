@@ -1,30 +1,11 @@
 #ifndef _MONTY_H_
 #define _MONTY_H_
 
-#include <stdlib.h>
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-/**
- * struct var_s - struct to contain the main variables
- * @queue: flag to determine if in stack or queue mode
- * @stack_len: length of the stack
- */
-typedef struct var_s
-{
-	int queue;
-	size_t stack_len;
-} var_t;
-
-#define STACK 0
-#define QUEUE 1
-
-/* global struct that holds flag for queue and stack length */
-extern var_t var;
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -42,7 +23,7 @@ typedef struct stack_s
 } stack_t;
 
 /**
- * struct instruction_s - opcoode and its function
+ * struct instruction_s - opcode and its function
  * @opcode: the opcode
  * @f: function to handle the opcode
  * Description: opcode and its function
@@ -54,28 +35,39 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-void get_op(char *op, stack_t **stack, unsigned int line_number);
-void m_push(stack_t **stack, unsigned int line_number);
-void m_push2(stack_t **stack, int n);
-void m_pall(stack_t **stack, unsigned int line_number);
-void m_pint(stack_t **stack, unsigned int line_number);
-void m_pop(stack_t **stack, unsigned int line_number);
-void m_swap(stack_t **stack, unsigned int line_number);
-void m_add(stack_t **stack, unsigned int line_number);
-void m_nop(stack_t **stack, unsigned int line_number);
-void m_sub(stack_t **stack, unsigned int line_number);
-void m_mul(stack_t **stack, unsigned int line_number);
-void m_div(stack_t **stack, unsigned int line_number);
-void m_mod(stack_t **stack, unsigned int line_number);
-void rotl(stack_t **stack, unsigned int line_number);
-void rotr(stack_t **stack, unsigned int line_number);
-void m_stack(stack_t **stack, unsigned int line_number);
-void m_queue(stack_t **stack, unsigned int line_number);
-void m_pchar(stack_t **stack, unsigned int line_number);
-void m_pstr(stack_t **stack, unsigned int line_number);
-void free_stack(int status, void *arg);
-void m_fs_close(int status, void *arg);
-void free_lineptr(int status, void *arg);
-stack_t *add_node(stack_t **stack, const int n);
+/**
+ * struct global_variables - global variables that are accessible to all files.
+ * @oc_arg: pointer to arg of opcode.
+ * @buf: pointer to buffer for the line in opened files.
+ * @fd: file descriptor;
+ * Description: global variables used to construct our stack
+ */
+typedef struct global_variables
+{
+	char *oc_arg;
+	char *buf;
+	FILE *fd;
+} glob_var;
 
-#endif /* _MONTY_H_ */
+glob_var *c;
+
+void _geterrmsg(int f, unsigned int line_num, stack_t **stackPtr);
+void reclaim_mem(stack_t **stackPtr, int f);
+int _isdigit(unsigned int line_num, stack_t **stackPtr);
+void _push_opcode(stack_t **stackPtr, unsigned int line_num);
+void _pall_opcode(stack_t **stackPtr, unsigned int line_num);
+stack_t *_getOpFunc(stack_t **stackPtr, char *oc, unsigned int l_num);
+void _pint_opcode(stack_t **stackPtr, unsigned int l_num);
+void _pop_opcode(stack_t **stackPtr, unsigned int l_num);
+void _swap_opcode(stack_t **stackPtr, unsigned int l_num);
+void _add_opcode(stack_t **stackPtr, unsigned int l_num);
+void _nop_opcode(stack_t **stackPtr, unsigned int l_n);
+void _sub_opcode(stack_t **stackPtr, unsigned int l_num);
+void _div_opcode(stack_t **stackPtr, unsigned int l_num);
+void _mul_opcode(stack_t **stackPtr, unsigned int l_num);
+void _mod_opcode(stack_t **stackPtr, unsigned int l_num);
+void _pchar_opcode(stack_t **stackPtr, unsigned int l_num);
+void _pstr_opcode(stack_t **stackPtr, unsigned int l_num);
+void _rotl_opcode(stack_t **stackPtr, unsigned int l_num);
+void _rotr_opcode(stack_t **stackPtr, unsigned int l_num);
+#endif

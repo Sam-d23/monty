@@ -1,49 +1,54 @@
 #include "monty.h"
-#include <ctype.h>
-
 /**
- * check_for_digit - checks whether a string only contains digits
- * @arg: string to be checked
- * Return: 0 (Success), else 1
+ * _push_opcode - function to execute the push opcode.
+ * @stackPtr: pointer to top of the stack.
+ * @line_num: line number in the file.
+ * Return: void
  */
-static int check_for_digit(char *arg)
+void _push_opcode(stack_t **stackPtr, unsigned int line_num)
 {
-	int j;
+	stack_t *new_node = NULL;
+	int mod_int = 0, check = 0;
 
-	for (j = 0; arg[j]; j++)
+	line_num += 0;
+	check = _isdigit(line_num, stackPtr);
+	if (check == 0)
+		_geterrmsg(2, line_num, stackPtr);
+
+	new_node = malloc(sizeof(stack_t));
+	if (new_node == NULL)
+		_geterrmsg(2, line_num, stackPtr);
+	new_node->prev = NULL;
+	new_node->next = NULL;
+	mod_int = atoi(c->oc_arg);
+	new_node->n = mod_int;
+
+	if (*stackPtr != NULL)
 	{
-		if (arg[j] == '-' && j == 0)
-			continue;
-		if (isdigit(arg[j]) == 0)
-			return (1);
+		(*stackPtr)->prev = new_node;
+		new_node->next = *stackPtr;
+		*stackPtr = new_node;
 	}
-	return (0);
+	*stackPtr = new_node;
 }
 
 /**
- * m_push - pushes an integer onto the stack
- * @stack: double pointer to the beginning of the stack
- * @line_number: script line number
- * Return: none
+ * _isdigit - checks for a digit.
+ * @line_num: line number in the file.
+ * @stackPtr: pointer to top of the file.
+ * Return: 1 if digit is read, 0 otherwise.
  */
-void m_push(stack_t **stack, unsigned int line_number)
+int _isdigit(unsigned int line_num, stack_t **stackPtr)
 {
-	char *arg;
-	int n;
+	int j = 0;
 
-	arg = strtok(NULL, "\n\t\r ");
-	if (arg == NULL || check_for_digit(arg))
+	if (c->oc_arg == NULL)
+		_geterrmsg(2, line_num, stackPtr);
+	while (c->oc_arg[j] != '\0')
 	{
-		dprintf(STDOUT_FILENO,
-			"L%u: usage: push integer\n",
-			line_number);
-		exit(EXIT_FAILURE);
+		if ((c->oc_arg[j] < 48 || c->oc_arg[j] > 57) && c->oc_arg[j] != 45)
+			return (0);
+		j++;
 	}
-	n = atoi(arg);
-	if (!add_node(stack, n))
-	{
-		dprintf(STDOUT_FILENO, "Error: malloc failed\n");
-		exit(EXIT_FAILURE);
-	}
-	var.stack_len++;
+	return (1);
 }
